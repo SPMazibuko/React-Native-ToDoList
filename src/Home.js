@@ -8,22 +8,32 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { API, Auth, graphqlOperations } from "aws-amplify";
-import { ListTodos } from "./graphql/queries";
-//import { DataStore } from "aws-amplify";
-//import { Todo } from "./models";
-
-const Header = () => (
-  <View style={styles.headerContainer}>
-    <Text style={styles.headerTitle}>My Todo List</Text>
-  </View>
-);
+import Delete from "react-native-vector-icons/Feather";
+import { API, Auth, graphqlOperation, input } from "aws-amplify";
+import { listTodos, ListTodos } from "./graphql/queries";
+import { createTodo, updateTodo, deleteTodo } from "./graphql/mutations";
 
 const AddTodoModal = ({ modalVisible, setModalVisible }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  async function addTodo() {}
+  const addTodo = async () => {
+    try {
+      const input = {
+        name,
+        description,
+        isComplete: false,
+      };
+      const response = await API.graphql(
+        graphqlOperation(createTodo, { input })
+      );
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
+    setName("");
+    setDescription("");
+  };
 
   function closeModal() {
     setModalVisible(false);
@@ -39,15 +49,18 @@ const AddTodoModal = ({ modalVisible, setModalVisible }) => {
       <View style={styles.modalContainer}>
         <View style={styles.modalInnerContainer}>
           <Pressable onPress={closeModal} style={styles.modalDismissButton}>
-            <Text style={styles.modalDismissText}>X</Text>
+            <Text style={styles.modalDismissText}>Close</Text>
           </Pressable>
           <TextInput
-            onChangeText={setName}
+            value={name}
+            onChangeText={(text) => setName(text)}
             placeholder="Name"
             style={styles.modalInput}
+            required
           />
           <TextInput
-            onChangeText={setDescription}
+            value={description}
+            onChangeText={(text) => setDescription(text)}
             placeholder="Description"
             style={styles.modalInput}
           />
@@ -63,22 +76,48 @@ const AddTodoModal = ({ modalVisible, setModalVisible }) => {
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
 
+  const fetchTodos = async () => {
+    try {
+      const todoData = await API.graphql(graphqlOperation(listTodos));
+      setTodos(todoData.data.listTodos.items);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   useEffect(() => {
-    //to be filled in a later step
+    fetchTodos();
   }, []);
 
-  async function deleteTodo(todo) {
-    //to be filled in a later step
+  async function onDeleteTodo({ id }) {
+    try {
+      const newTodoArray = todos.filter((todo) => todo.id !== id);
+      setTodos(newTodoArray);
+      await API.graphql(graphqlOperation(deleteTodo, { input: { id } }));
+    } catch (e) {
+      console.log(e);
+    }
   }
 
-  async function setComplete(updateValue, todo) {
-    //to be filled in a later step
+  async function setComplete(updateValue, { id }) {
+    try {
+      const updateTodoData = await API.graphql(
+        graphqlOperation(updateTodo, {
+          input: {
+            id,
+            isComplete: updateValue,
+          },
+        })
+      );
+      setTodos(updateTodoData.data.updateTodo);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   const renderItem = ({ item }) => (
     <Pressable
       onLongPress={() => {
-        deleteTodo(item);
+        onDeleteTodo(item);
       }}
       onPress={() => {
         setComplete(!item.isComplete, item);
@@ -111,7 +150,9 @@ const Home = () => {
 
   return (
     <>
-      <Header />
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>Welcome Sifiso</Text>
+      </View>
       <TodoList />
       <Pressable
         onPress={() => {
@@ -167,6 +208,14 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     height: 20,
     marginLeft: "auto",
+    textAlign: "center",
+    width: 20,
+  },
+  delete: {
+    borderRadius: 2,
+    fontWeight: "700",
+    height: 20,
+    marginEnd: 20,
     textAlign: "center",
     width: 20,
   },
