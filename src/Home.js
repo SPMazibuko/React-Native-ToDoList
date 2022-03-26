@@ -8,15 +8,15 @@ import {
   TextInput,
   View,
 } from "react-native";
-import Delete from "react-native-vector-icons/Feather";
 import { API, Auth, graphqlOperation, input } from "aws-amplify";
-import { listTodos, ListTodos } from "./graphql/queries";
+import { listTodos } from "./graphql/queries";
 import { createTodo, updateTodo, deleteTodo } from "./graphql/mutations";
 
 const AddTodoModal = ({ modalVisible, setModalVisible }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
+  // add todo items from the modal
   const addTodo = async () => {
     try {
       const input = {
@@ -76,6 +76,7 @@ const AddTodoModal = ({ modalVisible, setModalVisible }) => {
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
 
+  // fetch todo list items from the database
   const fetchTodos = async () => {
     try {
       const todoData = await API.graphql(graphqlOperation(listTodos));
@@ -88,6 +89,7 @@ const TodoList = () => {
     fetchTodos();
   }, []);
 
+  // delete todo list items
   async function onDeleteTodo({ id }) {
     try {
       const newTodoArray = todos.filter((todo) => todo.id !== id);
@@ -98,6 +100,7 @@ const TodoList = () => {
     }
   }
 
+  // update the todo list items
   async function setComplete(updateValue, { id }) {
     try {
       const updateTodoData = await API.graphql(
@@ -147,7 +150,20 @@ const TodoList = () => {
 
 const Home = () => {
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [user, setUser] = useState("");
+  //Fetch current authenticated user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await Auth.currentAuthenticatedUser();
+        setUser(userData);
+        console.log(userData);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    fetchUser();
+  }, []);
   return (
     <>
       <View style={styles.headerContainer}>
