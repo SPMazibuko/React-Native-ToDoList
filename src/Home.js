@@ -188,7 +188,7 @@ const Home = () => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    backgroundColor: "#4696ec",
+    backgroundColor: "#00000091",
     paddingTop: Platform.OS === "ios" ? 44 : 0,
   },
   headerTitle: {
@@ -227,14 +227,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     width: 20,
   },
-  delete: {
-    borderRadius: 2,
-    fontWeight: "700",
-    height: 20,
-    marginEnd: 20,
-    textAlign: "center",
-    width: 20,
-  },
   completedCheckbox: {
     backgroundColor: "#000",
     color: "#fff",
@@ -246,7 +238,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignSelf: "center",
-    backgroundColor: "#4696ec",
+    backgroundColor: "#00000085",
     borderRadius: 99,
     paddingHorizontal: 8,
   },
@@ -258,7 +250,6 @@ const styles = StyleSheet.create({
       height: 4,
       width: 1,
     },
-    shadowOpacity: 0.3,
     shadowRadius: 4,
   },
   modalContainer: {
