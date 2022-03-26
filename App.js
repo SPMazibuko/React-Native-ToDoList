@@ -36,8 +36,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-/*<View style={styles.container}>
-<StatusBar />
-<Login />
-</View>*/
