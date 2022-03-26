@@ -11,26 +11,42 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import { Auth } from "aws-amplify";
 
-const Register = (props) => {
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
+const Register = ({ navigation }) => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errortext, setErrortext] = useState("");
 
-  const handleSubmitButton = () => {
+  const handleSubmitButton = async () => {
     setErrortext("");
-    if (!userName) {
+    if (!username) {
       alert("Please fill Name");
       return;
     }
-    if (!userEmail) {
+    if (!email) {
       alert("Please fill Email");
       return;
     }
-    if (!userPassword) {
+    if (!password) {
       alert("Please fill Password");
       return;
+    }
+    try {
+      await Auth.signUp({
+        username,
+        password,
+        attributes: {
+          email,
+        },
+      });
+      console.log("✅ Sign-up Confirmed");
+      alert("✅ Sign-up Confirmed");
+      navigation.navigate("ConfirmSignUp");
+    } catch (error) {
+      console.log("❌ Error signing up...", error);
+      alert(error);
     }
   };
 
@@ -58,37 +74,37 @@ const Register = (props) => {
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserName) => setUserName(UserName)}
-              underlineColorAndroid="#f000"
-              placeholder="Enter Name"
+              value={username}
+              onChangeText={(text) => setUsername(text)}
+              placeholder="Enter Username"
+              autoCapitalize="none"
               placeholderTextColor="#8b9cb5"
-              autoCapitalize="sentences"
-              returnKeyType="next"
-              blurOnSubmit={false}
             />
           </View>
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserEmail) => setUserEmail(UserEmail)}
-              underlineColorAndroid="#f000"
+              value={email}
+              onChangeText={(text) => setEmail(text)}
               placeholder="Enter Email"
-              placeholderTextColor="#8b9cb5"
+              autoCapitalize="none"
               keyboardType="email-address"
-              returnKeyType="next"
-              blurOnSubmit={false}
+              textContentType="emailAddress"
+              placeholderTextColor="#8b9cb5"
             />
           </View>
           <View style={styles.SectionStyle}>
             <TextInput
               style={styles.inputStyle}
-              onChangeText={(UserPassword) => setUserPassword(UserPassword)}
-              underlineColorAndroid="#f000"
-              placeholder="Enter Password"
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              leftIcon="lock"
+              placeholder="Enter password"
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry
+              textContentType="password"
               placeholderTextColor="#8b9cb5"
-              returnKeyType="next"
-              secureTextEntry={true}
-              blurOnSubmit={false}
             />
           </View>
           {errortext != "" ? (
@@ -118,7 +134,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   buttonStyle: {
-    backgroundColor: "#7DE24E",
+    backgroundColor: "#7DE24E50",
     borderWidth: 0,
     color: "#FFFFFF",
     borderColor: "#7DE24E",

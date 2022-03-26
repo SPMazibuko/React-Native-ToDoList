@@ -13,31 +13,34 @@ import {
 } from "react-native";
 import { Auth } from "aws-amplify";
 
-const Login = ({ navigation }) => {
-  const [username, setUserName] = useState("");
-  const [userPassword, setUserPassword] = useState("");
+const ConfirmSignUp = ({ navigation }) => {
+  const [username, setUsername] = useState("");
+  const [authCode, setAuthCode] = useState("");
   const [errortext, setErrortext] = useState("");
 
-  const handleSubmitPress = async () => {
+  async function confirmSignUp() {
     setErrortext("");
     if (!username) {
       alert("Please fill Username");
       return;
     }
-    if (!userPassword) {
+    if (!authCode) {
       alert("Please fill Password");
       return;
     }
     try {
-      await Auth.signIn(username, userPassword);
-      console.log("✅ Success");
-      alert("✅ Success");
-      navigation.navigate("Home");
+      await Auth.confirmSignUp(username, authCode);
+      console.log("✅ Code confirmed");
+      alert("✅ Code confirmed");
+      navigation.navigate("Login");
     } catch (error) {
-      console.log("❌ Error signing in...", error);
-      alert(error);
+      console.log(
+        "❌ Verification code does not match. Please enter a valid verification code.",
+        error.code
+      );
+      alert("❌", error.code);
     }
-  };
+  }
 
   return (
     <View style={styles.mainBody}>
@@ -66,7 +69,7 @@ const Login = ({ navigation }) => {
             <View style={styles.SectionStyle}>
               <TextInput
                 style={styles.inputStyle}
-                onChangeText={(Username) => setUserName(Username)}
+                onChangeText={(Username) => setUsername(Username)}
                 placeholder="Enter Username"
                 placeholderTextColor="#8b9cb5"
                 autoCapitalize="none"
@@ -78,12 +81,11 @@ const Login = ({ navigation }) => {
             <View style={styles.SectionStyle}>
               <TextInput
                 style={styles.inputStyle}
-                onChangeText={(UserPassword) => setUserPassword(UserPassword)}
-                placeholder="Enter Password"
+                onChangeText={(authCode) => setAuthCode(authCode)}
+                placeholder="Enter Auth code"
                 placeholderTextColor="#8b9cb5"
                 onSubmitEditing={Keyboard.dismiss}
                 blurOnSubmit={false}
-                secureTextEntry={true}
                 underlineColorAndroid="#f000"
                 returnKeyType="next"
               />
@@ -94,23 +96,17 @@ const Login = ({ navigation }) => {
             <TouchableOpacity
               style={styles.buttonStyle}
               activeOpacity={0.5}
-              onPress={handleSubmitPress}
+              onPress={confirmSignUp}
             >
               <Text style={styles.buttonTextStyle}>LOGIN</Text>
             </TouchableOpacity>
-            <Text
-              style={styles.registerTextStyle}
-              onPress={() => navigation.navigate("Register")}
-            >
-              New Here ? Register
-            </Text>
           </KeyboardAvoidingView>
         </View>
       </ScrollView>
     </View>
   );
 };
-export default Login;
+export default ConfirmSignUp;
 
 const styles = StyleSheet.create({
   mainBody: {

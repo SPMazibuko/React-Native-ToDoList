@@ -157,7 +157,6 @@ const Home = () => {
       try {
         const userData = await Auth.currentAuthenticatedUser();
         setUser(userData);
-        console.log(userData);
       } catch (e) {
         console.log(e);
       }
@@ -167,7 +166,10 @@ const Home = () => {
   return (
     <>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>Welcome Sifiso</Text>
+        <Text style={styles.headerTitle}>Welcome {user.username}</Text>
+        <Text style={{ color: "#fff", fontSize: 16, textAlign: "center" }}>
+          press long to delete, and press once to update as complete
+        </Text>
       </View>
       <TodoList />
       <Pressable
@@ -193,7 +195,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "600",
     paddingVertical: 16,
     textAlign: "center",
